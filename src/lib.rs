@@ -1,7 +1,12 @@
 pub mod errors;
 mod operations;
 mod shamirss;
-use operations::{is_proper_size, U8S_TO_BIG_INT_INITIAL};
+use errors::SSSError;
+use operations::{
+    is_proper_size, secret_base64_to_bytes, secret_bytes_to_base64, secret_bytes_to_hex,
+    secret_hex_to_bytes, shares_base64_to_bytes, shares_bytes_to_base64, shares_bytes_to_hex,
+    shares_hex_to_bytes, U8S_TO_BIG_INT_INITIAL,
+};
 
 /// Creates shared secrets from given secret.
 /// Function will not be inlined.
@@ -70,7 +75,7 @@ pub fn create_std(
 /// # Examples
 ///
 /// ```
-/// use shamir_secret_sharing::{create_std, combine_std};
+///use shamir_secret_sharing::{create_std, combine_std};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -118,7 +123,7 @@ pub fn combine_std(shares: Vec<Vec<u8>>) -> Result<Vec<u8>, errors::SSSError> {
 /// # Examples
 ///
 /// ```
-/// use shamir_secret_sharing::{create_inlined};
+///use shamir_secret_sharing::{create_inlined};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -173,7 +178,7 @@ pub fn create_inlined(
 /// # Examples
 ///
 /// ```
-/// use shamir_secret_sharing::{combine_inlined, create_inlined};
+///use shamir_secret_sharing::{combine_inlined, create_inlined};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -207,4 +212,160 @@ pub fn create_inlined(
 #[inline(always)]
 pub fn combine_inlined(shares: Vec<Vec<u8>>) -> Result<Vec<u8>, errors::SSSError> {
     shamirss::combine_shares(shares)
+}
+
+/// Encoding standard for secret and shares.
+///
+#[derive(Debug, Clone)]
+pub enum EncodingStd {
+    Hex,
+    Base64,
+}
+
+/// Encodes secret bytes to string in given encoding standard.
+///
+/// # Argument
+///
+/// * `b`  -secret  bytes to encode.
+///
+/// # Examples
+///
+/// ```
+///use shamir_secret_sharing::{encode_secret_bytes, EncodingStd};
+///
+///const secret_bytes: &[u8; 512] = &[
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100, 100, 93, 129, 160,
+///    99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25, 64, 173, 202, 96, 116,
+///    133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0, 0, 0, 0, 0, 0, 0, 29,
+///    136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100, 100, 93, 129,
+///    160, 99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25, 64, 173, 202, 96,
+///    116, 133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0, 0, 0, 0, 0, 0, 0,
+///    29, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100, 100, 93,
+///    129, 160, 99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25, 64, 173,
+///    202, 96, 116, 133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0, 0, 0, 0,
+///    0, 0, 0, 29, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100,
+///    100, 93, 129, 160, 99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25,
+///    64, 173, 202, 96, 116, 133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0,
+///    0, 0, 0, 0, 0, 0, 29, 136,
+///];
+///
+///let encoding = EncodingStd::Hex;
+///let enc = encode_secret_bytes(secret_bytes, encoding);
+///```
+///
+pub fn encode_secret_bytes(b: &[u8], encoding: EncodingStd) -> String {
+    match encoding {
+        EncodingStd::Hex => secret_bytes_to_hex(b),
+        EncodingStd::Base64 => secret_bytes_to_base64(b),
+    }
+}
+
+/// Decodess secret to bytes from string in given encoding standard.
+///
+/// # Argument
+///
+/// * `s`  - encoded string to decode.
+///
+/// # Examples
+///
+/// ```
+///use shamir_secret_sharing::{encode_secret_bytes, decode_secret_to_bytes, EncodingStd};
+///
+///const secret_bytes: &[u8; 512] = &[
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100, 100, 93, 129, 160,
+///    99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25, 64, 173, 202, 96, 116,
+///    133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0, 0, 0, 0, 0, 0, 0, 29,
+///    136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100, 100, 93, 129,
+///    160, 99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25, 64, 173, 202, 96,
+///    116, 133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0, 0, 0, 0, 0, 0, 0,
+///    29, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100, 100, 93,
+///    129, 160, 99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25, 64, 173,
+///    202, 96, 116, 133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0, 0, 0, 0,
+///    0, 0, 0, 29, 136, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 112, 99, 131, 144, 100,
+///    100, 93, 129, 160, 99, 153, 151, 145, 114, 122, 123, 127, 148, 120, 98, 137, 175, 0, 0, 0, 0,
+///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 25,
+///    64, 173, 202, 96, 116, 133, 114, 12, 186, 37, 43, 2, 70, 194, 52, 40, 80, 160, 233, 205, 0, 0,
+///    0, 0, 0, 0, 0, 0, 29, 136,
+///];
+///
+///let encoding = EncodingStd::Hex;
+///let enc = encode_secret_bytes(secret_bytes, encoding.clone());
+
+///let _dec = decode_secret_to_bytes(&enc, encoding).unwrap();
+///```
+///
+pub fn decode_secret_to_bytes(s: &str, encoding: EncodingStd) -> Result<Vec<u8>, SSSError> {
+    match encoding {
+        EncodingStd::Hex => secret_hex_to_bytes(s),
+        EncodingStd::Base64 => secret_base64_to_bytes(s),
+    }
+}
+
+/// Encodes secret bytes to string in given encoding standard.
+///
+/// # Argument
+///
+/// * `b`  - vector of shares bytes slices to encode.
+///
+/// # Examples
+///
+/// ```
+///use shamir_secret_sharing::{encode_shares_bytes, EncodingStd};
+///
+///let secret_shares: Vec<Vec<u8>> = vec![vec![1;128], vec![2;128], vec![3;128], vec![4;128]];
+///
+///
+///let encoding = EncodingStd::Hex;
+///let _enc = encode_shares_bytes(secret_shares, encoding);
+///```
+///
+pub fn encode_shares_bytes(b: Vec<Vec<u8>>, encoding: EncodingStd) -> Vec<String> {
+    match encoding {
+        EncodingStd::Hex => shares_bytes_to_hex(b),
+        EncodingStd::Base64 => shares_bytes_to_base64(b),
+    }
+}
+
+/// Encodes secret bytes to string in given encoding standard.
+///
+/// # Argument
+///
+/// * `b`  - vector of shares bytes slices to encode.
+///
+/// # Examples
+///
+/// ```
+///use shamir_secret_sharing::{encode_shares_bytes, decode_shares_to_bytes, EncodingStd};
+///
+///let secret_shares: Vec<Vec<u8>> = vec![vec![1;128], vec![2;128], vec![3;128], vec![4;128]];
+///
+///
+///let encoding = EncodingStd::Hex;
+///let enc = encode_shares_bytes(secret_shares, encoding.clone());
+///let _dec =decode_shares_to_bytes(&enc, encoding).unwrap();
+///```
+///
+pub fn decode_shares_to_bytes(
+    s: &[String],
+    encoding: EncodingStd,
+) -> Result<Vec<Vec<u8>>, SSSError> {
+    match encoding {
+        EncodingStd::Hex => shares_hex_to_bytes(s),
+        EncodingStd::Base64 => shares_base64_to_bytes(s),
+    }
 }

@@ -1,6 +1,6 @@
-use openssl::bn::{BigNum, BigNumContextRef};
-
 use crate::errors::SSSError;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
+use openssl::bn::{BigNum, BigNumContextRef};
 
 pub(crate) const DEFAULT_PRIME: &str =
     "115792089237316195423570985008687907853269984665640564039457584007913129639747";
@@ -72,6 +72,82 @@ pub(crate) fn evaluate(
     }
 
     Ok(result)
+}
+
+#[inline(always)]
+pub(crate) fn secret_hex_to_bytes(s: &str) -> Result<Vec<u8>, SSSError> {
+    Ok(hex::decode(s)?)
+}
+
+#[inline(always)]
+pub(crate) fn shares_hex_to_bytes(s: &[String]) -> Result<Vec<Vec<u8>>, SSSError> {
+    let mut err = None;
+    let result = s
+        .iter()
+        .map(hex::decode)
+        .filter_map(|r| {
+            r.map_err(|e| {
+                if err.is_none() {
+                    err = Some(e)
+                }
+            })
+            .ok()
+        })
+        .collect();
+    if let Some(e) = err {
+        return Err(SSSError::FromHex(e));
+    }
+
+    Ok(result)
+}
+
+#[inline(always)]
+pub(crate) fn secret_bytes_to_hex(h: &[u8]) -> String {
+    hex::encode(h)
+}
+
+#[inline(always)]
+pub(crate) fn shares_bytes_to_hex(h: Vec<Vec<u8>>) -> Vec<String> {
+    h.iter().map(hex::encode).collect::<Vec<String>>()
+}
+
+#[inline(always)]
+pub(crate) fn secret_base64_to_bytes(s: &str) -> Result<Vec<u8>, SSSError> {
+    Ok(STANDARD.decode(s)?)
+}
+
+#[inline(always)]
+pub(crate) fn shares_base64_to_bytes(s: &[String]) -> Result<Vec<Vec<u8>>, SSSError> {
+    let mut err = None;
+    let result = s
+        .iter()
+        .map(|b| STANDARD.decode(b))
+        .filter_map(|r| {
+            r.map_err(|e| {
+                if err.is_none() {
+                    err = Some(e)
+                }
+            })
+            .ok()
+        })
+        .collect();
+    if let Some(e) = err {
+        return Err(SSSError::FromBase64(e));
+    }
+
+    Ok(result)
+}
+
+#[inline(always)]
+pub(crate) fn secret_bytes_to_base64(h: &[u8]) -> String {
+    STANDARD.encode(h)
+}
+
+#[inline(always)]
+pub(crate) fn shares_bytes_to_base64(h: Vec<Vec<u8>>) -> Vec<String> {
+    h.iter()
+        .map(|s| STANDARD.encode(s))
+        .collect::<Vec<String>>()
 }
 
 #[cfg(test)]
