@@ -10,8 +10,8 @@ const COEFFICIENTS_PER_SHARE: usize = 2;
 const COEFFICIENTS_SIZE: usize = COEFFICIENTS_PER_SHARE * U8S_TO_BIG_INT_INITIAL;
 
 /// Crates shares from given secret.
-/// Function uses openssl library for cryptographically secure pseudo-random number generation and
-/// BigNum from openssl big num package to calculate coefficients up to 64 bytes in size.
+/// Function uses Openssl library for cryptographically secure pseudo-random number generation and
+/// BigNum from Openssl big num package to calculate coefficients up to 64 bytes in size.
 ///
 #[inline(always)]
 pub(crate) fn create_shares(
@@ -61,8 +61,8 @@ pub(crate) fn create_shares(
 
 /// Recreates secret from given shares.
 /// If number of shares is to small the secret calculated from them will not be correct.
-/// Function uses openssl library for cryptographically secure pseudo-random number generation and
-/// BigNum from openssl big num package to calculate coefficients up to 64 bytes in size.
+/// Function uses Openssl library for cryptographically secure pseudo-random number generation and
+/// BigNum from Openssl big num package to calculate coefficients up to 64 bytes in size.
 ///
 #[inline(always)]
 pub(crate) fn combine_shares(shares: Vec<Vec<u8>>) -> Result<Vec<u8>, SSSError> {

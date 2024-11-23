@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use shamir_secret_sharing::{combine_inlined, create_inlined};
+use shamirss::{combine_inlined, create_inlined};
 const SECRET_512_BYTES: &[u8; 512] = &[
     1, 2, 34, 56, 255, 74, 123, 123, 77, 44, 0, 1, 23, 78, 92, 123, 124, 178, 77, 190, 234, 241, 2,
     65, 55, 69, 92, 112, 199, 99, 21, 8, 1, 2, 34, 56, 255, 74, 123, 123, 77, 44, 0, 1, 23, 78, 92,

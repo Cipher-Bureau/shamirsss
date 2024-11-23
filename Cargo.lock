@@ -566,7 +566,6 @@ dependencies = [
  "openssl",
  "openssl-sys",
  "rand",
- "serde",
  "thiserror",
 ]
 

@@ -21,7 +21,7 @@ use operations::{
 /// # Examples
 ///
 /// ```
-/// use shamir_secret_sharing::{create_std};
+/// use shamirss::{create_std};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -75,7 +75,7 @@ pub fn create_std(
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{create_std, combine_std};
+///use shamirss::{create_std, combine_std};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -123,7 +123,7 @@ pub fn combine_std(shares: Vec<Vec<u8>>) -> Result<Vec<u8>, errors::SSSError> {
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{create_inlined};
+///use shamirss::{create_inlined};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -178,7 +178,7 @@ pub fn create_inlined(
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{combine_inlined, create_inlined};
+///use shamirss::{combine_inlined, create_inlined};
 ///
 ///const SECRET_512_BYTES: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -231,7 +231,7 @@ pub enum EncodingStd {
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{encode_secret_bytes, EncodingStd};
+///use shamirss::{encode_secret_bytes, EncodingStd};
 ///
 ///const secret_bytes: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -277,7 +277,7 @@ pub fn encode_secret_bytes(b: &[u8], encoding: EncodingStd) -> String {
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{encode_secret_bytes, decode_secret_to_bytes, EncodingStd};
+///use shamirss::{encode_secret_bytes, decode_secret_to_bytes, EncodingStd};
 ///
 ///const secret_bytes: &[u8; 512] = &[
 ///    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -325,7 +325,7 @@ pub fn decode_secret_to_bytes(s: &str, encoding: EncodingStd) -> Result<Vec<u8>,
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{encode_shares_bytes, EncodingStd};
+///use shamirss::{encode_shares_bytes, EncodingStd};
 ///
 ///let secret_shares: Vec<Vec<u8>> = vec![vec![1;128], vec![2;128], vec![3;128], vec![4;128]];
 ///
@@ -350,7 +350,7 @@ pub fn encode_shares_bytes(b: Vec<Vec<u8>>, encoding: EncodingStd) -> Vec<String
 /// # Examples
 ///
 /// ```
-///use shamir_secret_sharing::{encode_shares_bytes, decode_shares_to_bytes, EncodingStd};
+///use shamirss::{encode_shares_bytes, decode_shares_to_bytes, EncodingStd};
 ///
 ///let secret_shares: Vec<Vec<u8>> = vec![vec![1;128], vec![2;128], vec![3;128], vec![4;128]];
 ///

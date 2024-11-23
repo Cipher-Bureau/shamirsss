@@ -52,11 +52,7 @@ Macbook M2 (ARM64) processor:
 - To create 100 shares with 50 minimum shares threshold of 512 bytes long key takes 25 [ ms ].
 - To recreate 512 bytes long key from 100 shares with min 50 shares threshold takes 140 [ ms ].
 
-### Docs
+## Documentation 
 
-To generate crate documentation run in terminal:
- 
-```sh
-cargo doc
-```
+[Go to shamirss docs.rs](https://docs.rs/shamirss/0.1.1/shamirss/)
 
