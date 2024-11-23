@@ -557,7 +557,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "shamir_secret_sharing"
+name = "shamirss"
 version = "0.1.0"
 dependencies = [
  "base64",

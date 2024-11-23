@@ -1,5 +1,5 @@
 [package]
-name = "shamir_secret_sharing"
+name = "shamirss"
 version = "0.1.0"
 edition = "2021"
 authors = ["Bartosz Lenart <lenart.consulting@gmail.com>"]
