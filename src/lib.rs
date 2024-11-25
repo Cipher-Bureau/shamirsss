@@ -316,7 +316,7 @@ pub fn decode_secret_to_bytes(s: &str, encoding: EncodingStd) -> Result<Vec<u8>,
     }
 }
 
-/// Encodes secret bytes to string in given encoding standard.
+/// Encodes slice of shares bytes to slice of string in given encoding standard.
 ///
 /// # Argument
 ///
@@ -341,7 +341,7 @@ pub fn encode_shares_bytes(b: Vec<Vec<u8>>, encoding: EncodingStd) -> Vec<String
     }
 }
 
-/// Encodes secret bytes to string in given encoding standard.
+/// Decodes shares bytes in encoded string in given encoding standard to slice of bytes.
 ///
 /// # Argument
 ///
