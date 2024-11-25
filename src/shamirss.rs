@@ -159,6 +159,7 @@ mod tests {
     use crate::{
         combine_std, create_std,
         errors::SSSError,
+        operations::secret_bytes_to_hex,
         shamirss::{combine_shares, create_shares},
     };
     use openssl::rand::rand_bytes;
@@ -308,6 +309,82 @@ mod tests {
             assert_eq!(secret, secret_decoded);
             size *= 2;
         }
+
+        Ok(())
+    }
+
+    // This brute force test tries to guess the coefficient and brake secret with small amount of
+    // shares available.
+    #[ignore]
+    #[test]
+    fn it_should_try_to_brute_force_key_with_small_shares_amount_and_not_succeed(
+    ) -> Result<(), SSSError> {
+        let size = 32;
+        let min = 2;
+        let shares_count = 2;
+        let secret = get_random_bytes(size)?;
+        let secret_shares = create_std(min, shares_count, &secret)?;
+        let num_of_guesses = 10_000_000;
+        let mut counter = 0;
+        while counter < num_of_guesses {
+            counter += 1;
+            let guess = get_random_bytes(64)?;
+            for share in secret_shares.iter() {
+                let secret_decoded = combine_std([share.clone(), guess.clone()].to_vec())?;
+                if secret == secret_decoded {
+                    println!(
+                        "Successful guess after {counter} tries\nSecret:  {}\nDecoded: {}\n",
+                        secret_bytes_to_hex(&secret),
+                        secret_bytes_to_hex(&secret_decoded)
+                    );
+                    return Err(SSSError::WithReason("Share brute forced.".to_string()));
+                }
+            }
+            if counter % 1000 == 0 {
+                std::process::Command::new("clear").status().unwrap();
+                println!("Unsuccessful guess number: {counter}");
+            }
+        }
+
+        println!("Total of {counter} guesses was not able to brute force {shares_count} shares with min {min} shares allowed for reconstructing secret of length {size} bytes");
+
+        Ok(())
+    }
+
+    // This brute force test tries to guess the coefficient and brake secret large amount of
+    // shares available but small minimal threshold.
+    #[ignore]
+    #[test]
+    fn it_should_try_to_brute_force_key_with_large_shares_amount_and_not_succeed(
+    ) -> Result<(), SSSError> {
+        let size = 32;
+        let min = 2;
+        let shares_count = 100;
+        let secret = get_random_bytes(size)?;
+        let secret_shares = create_std(min, shares_count, &secret)?;
+        let num_of_guesses = 100_000;
+        let mut counter = 0;
+        while counter < num_of_guesses {
+            counter += 1;
+            let guess = get_random_bytes(64)?;
+            for share in secret_shares.iter() {
+                let secret_decoded = combine_std([share.clone(), guess.clone()].to_vec())?;
+                if secret == secret_decoded {
+                    println!(
+                        "Successful guess after {counter} tries\nSecret:  {}\nDecoded: {}\n",
+                        secret_bytes_to_hex(&secret),
+                        secret_bytes_to_hex(&secret_decoded)
+                    );
+                    return Err(SSSError::WithReason("Share brute forced.".to_string()));
+                }
+            }
+            if counter % 1000 == 0 {
+                std::process::Command::new("clear").status().unwrap();
+                println!("Unsuccessful guess number: {counter}");
+            }
+        }
+
+        println!("Total of {counter} guesses was not able to brute force {shares_count} shares with min {min} shares allowed for reconstructing secret of length {size} bytes");
 
         Ok(())
     }

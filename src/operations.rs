@@ -2,11 +2,17 @@ use crate::errors::SSSError;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use openssl::bn::{BigNum, BigNumContextRef};
 
+/// Default prime used for mod calculations.
+///
 pub(crate) const DEFAULT_PRIME: &str =
     "115792089237316195423570985008687907853269984665640564039457584007913129639747";
 
+/// Maximum initial size of big int is set to 32 bytes to protect against value overflow.
+///
 pub(crate) const U8S_TO_BIG_INT_INITIAL: usize = 32;
 
+/// Calculates is the bytes slice divisor is initial big int size.
+///
 #[inline(always)]
 pub(crate) fn is_proper_size(v: &[u8]) -> bool {
     v.len() % U8S_TO_BIG_INT_INITIAL == 0
@@ -21,6 +27,8 @@ pub(crate) fn random(upper_limit: &BigNum) -> Result<BigNum, SSSError> {
     Ok(result)
 }
 
+/// Maps bytes to big nums.
+///
 #[inline(always)]
 pub(crate) fn bytes_to_big_nums(bytes: &[u8]) -> Result<Vec<BigNum>, SSSError> {
     let mut slice =
@@ -39,6 +47,8 @@ pub(crate) fn bytes_to_big_nums(bytes: &[u8]) -> Result<Vec<BigNum>, SSSError> {
     Ok(slice)
 }
 
+/// Maps big nums to bytes.
+///
 #[inline(always)]
 pub(crate) fn big_nums_to_bytes(slice: &[BigNum]) -> Vec<u8> {
     let mut result = Vec::with_capacity(slice.len() * U8S_TO_BIG_INT_INITIAL);
@@ -54,6 +64,8 @@ pub(crate) fn big_nums_to_bytes(slice: &[BigNum]) -> Vec<u8> {
     result
 }
 
+/// Evaluates polynomial slice.
+///
 #[inline(always)]
 pub(crate) fn evaluate(
     ctx: &mut BigNumContextRef,
@@ -74,11 +86,15 @@ pub(crate) fn evaluate(
     Ok(result)
 }
 
+/// Decodes hex to bytes.
+///
 #[inline(always)]
 pub(crate) fn secret_hex_to_bytes(s: &str) -> Result<Vec<u8>, SSSError> {
     Ok(hex::decode(s)?)
 }
 
+/// Decodes hex shares slice to slices of bytes slices.
+///
 #[inline(always)]
 pub(crate) fn shares_hex_to_bytes(s: &[String]) -> Result<Vec<Vec<u8>>, SSSError> {
     let mut err = None;
@@ -101,21 +117,29 @@ pub(crate) fn shares_hex_to_bytes(s: &[String]) -> Result<Vec<Vec<u8>>, SSSError
     Ok(result)
 }
 
+/// Encodes secret bytes to hex.
+///
 #[inline(always)]
 pub(crate) fn secret_bytes_to_hex(h: &[u8]) -> String {
     hex::encode(h)
 }
 
+/// Encodes shares slices of bytes to hex slices.
+///
 #[inline(always)]
 pub(crate) fn shares_bytes_to_hex(h: Vec<Vec<u8>>) -> Vec<String> {
     h.iter().map(hex::encode).collect::<Vec<String>>()
 }
 
+/// Decodes base64 to bytes.
+///
 #[inline(always)]
 pub(crate) fn secret_base64_to_bytes(s: &str) -> Result<Vec<u8>, SSSError> {
     Ok(STANDARD.decode(s)?)
 }
 
+/// Decodes base64 shares slice to slices of bytes slices.
+///
 #[inline(always)]
 pub(crate) fn shares_base64_to_bytes(s: &[String]) -> Result<Vec<Vec<u8>>, SSSError> {
     let mut err = None;
@@ -138,11 +162,15 @@ pub(crate) fn shares_base64_to_bytes(s: &[String]) -> Result<Vec<Vec<u8>>, SSSEr
     Ok(result)
 }
 
+/// Encodes secret bytes to base64.
+///
 #[inline(always)]
 pub(crate) fn secret_bytes_to_base64(h: &[u8]) -> String {
     STANDARD.encode(h)
 }
 
+/// Encodes secret bytes to base64.
+///
 #[inline(always)]
 pub(crate) fn shares_bytes_to_base64(h: Vec<Vec<u8>>) -> Vec<String> {
     h.iter()
