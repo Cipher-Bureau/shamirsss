@@ -226,7 +226,7 @@ pub enum EncodingStd {
 ///
 /// # Argument
 ///
-/// * `b`  -secret  bytes to encode.
+/// * `b`  - secret bytes to encode.
 ///
 /// # Examples
 ///
@@ -268,11 +268,11 @@ pub fn encode_secret_bytes(b: &[u8], encoding: EncodingStd) -> String {
     }
 }
 
-/// Decodess secret to bytes from string in given encoding standard.
+/// Decodes secret to bytes from string in given encoding standard.
 ///
 /// # Argument
 ///
-/// * `s`  - encoded string to decode.
+/// * `s`  - secret string to decode.
 ///
 /// # Examples
 ///
@@ -316,11 +316,11 @@ pub fn decode_secret_to_bytes(s: &str, encoding: EncodingStd) -> Result<Vec<u8>,
     }
 }
 
-/// Encodes slice of shares bytes to slice of string in given encoding standard.
+/// Encodes slice of shares bytes to slice of strings in given encoding standard.
 ///
 /// # Argument
 ///
-/// * `b`  - vector of shares bytes slices to encode.
+/// * `b`  - vector of shares in bytes to encode.
 ///
 /// # Examples
 ///
@@ -341,11 +341,11 @@ pub fn encode_shares_bytes(b: Vec<Vec<u8>>, encoding: EncodingStd) -> Vec<String
     }
 }
 
-/// Decodes shares bytes in encoded string in given encoding standard to slice of bytes.
+/// Decodes slice of shares strings encoded in given encoding standard to slice of shares in bytes.
 ///
 /// # Argument
 ///
-/// * `b`  - vector of shares bytes slices to encode.
+/// * `b`  - vector of shares strings to decode.
 ///
 /// # Examples
 ///
@@ -357,7 +357,7 @@ pub fn encode_shares_bytes(b: Vec<Vec<u8>>, encoding: EncodingStd) -> Vec<String
 ///
 ///let encoding = EncodingStd::Hex;
 ///let enc = encode_shares_bytes(secret_shares, encoding.clone());
-///let _dec =decode_shares_to_bytes(&enc, encoding).unwrap();
+///let _dec = decode_shares_to_bytes(&enc, encoding).unwrap();
 ///```
 ///
 pub fn decode_shares_to_bytes(
